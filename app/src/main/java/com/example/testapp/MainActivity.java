@@ -1,5 +1,6 @@
 package com.example.testapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
@@ -9,13 +10,19 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.testapp.pojo.ConditionsPOJO;
+import com.example.testapp.pojo.LocationPOJO;
+
 import java.util.LinkedList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
         private String Location;
-        private String API = "e90a73a8a229cb20d0e51447fb2b3b7a";
+        private String API = "7aevoUmbcEUAWdpGBZTdiNl8AaBA9aGR";
         private TextView temperature, address, lastUpdate;
         private ProgressBar loadingCircle;
 
@@ -109,38 +116,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Location = "mirnyy";
                                 break;
                         case R.id.muoma :
-                                Location = "khonuu";//Api no workee
+                                Location = "khonuu";
                                 break;
                 }
-                new WeatherTask(this).execute();
                 temperature.setVisibility(View.INVISIBLE);
                 address.setVisibility(View.INVISIBLE);
                 lastUpdate.setVisibility(View.INVISIBLE);
                 loadingCircle.setVisibility(View.VISIBLE);
-        }
 
-        public String getLocation() {
-                return Location;
-        }
+                NetworkService.getInstance()
+                        .getLocationApi()
+                        .getKey(API, Location)
+                        .enqueue(new Callback<List<LocationPOJO>>() {
+                                @Override
+                                public void onResponse(@NonNull Call<List<LocationPOJO>> call, @NonNull Response<List<LocationPOJO>> response) {
+                                        assert response.body() != null;
+                                        NetworkService.getInstance()
+                                                .getConditionsApi()
+                                                .getConditions(response.body().get(0).getKey(), API)
+                                                .enqueue(new Callback<List<ConditionsPOJO>>() {
+                                                        @Override
+                                                        public void onResponse(@NonNull Call<List<ConditionsPOJO>> call, @NonNull Response<List<ConditionsPOJO>> response) {
+                                                                temperature.setVisibility(View.VISIBLE);
+                                                                loadingCircle.setVisibility(View.INVISIBLE);
+                                                                assert response.body() != null;
+                                                                temperature.setText(String.valueOf(response.body().get(0).getTemperature().getMetric().getValue()));
+                                                        }
 
-        public String getAPI() {
-                return API;
-        }
+                                                        @Override
+                                                        public void onFailure(@NonNull Call<List<ConditionsPOJO>> call, @NonNull Throwable t) {
+                                                                System.out.println(t.toString());
+                                                        }
+                                                });
+                                }
 
-        public TextView getTemperature() {
-                return temperature;
-        }
-
-        public TextView getAddress() {
-                return address;
-        }
-
-        public TextView getLastUpdate() {
-                return lastUpdate;
-        }
-
-        public ProgressBar getProgressBar() {
-                return loadingCircle;
+                                @Override
+                                public void onFailure(@NonNull Call<List<LocationPOJO>> call, @NonNull Throwable t) {
+                                        System.out.println(t.toString());
+                                }
+                        });
         }
 }
 
