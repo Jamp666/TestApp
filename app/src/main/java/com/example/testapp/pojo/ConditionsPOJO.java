@@ -8,12 +8,36 @@ public class ConditionsPOJO {
         @Expose
         private Temperature temperature;
 
+        @SerializedName("EpochTime")
+        @Expose
+        private long epochTime;
+
+        @SerializedName("WeatherText")
+        @Expose
+        private String weatherText;
+
         public Temperature getTemperature() {
                 return temperature;
         }
 
         public void setTemperature(Temperature temperature) {
                 this.temperature = temperature;
+        }
+
+        public long getEpochTime() {
+                return epochTime;
+        }
+
+        public void setEpochTime(long epochTime) {
+                this.epochTime = epochTime;
+        }
+
+        public String getWeatherText() {
+                return weatherText;
+        }
+
+        public void setWeatherText(String weatherText) {
+                this.weatherText = weatherText;
         }
 
         public static class Temperature {

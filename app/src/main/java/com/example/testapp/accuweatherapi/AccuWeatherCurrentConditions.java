@@ -12,5 +12,6 @@ import retrofit2.http.Query;
 public interface AccuWeatherCurrentConditions {
         @GET("currentconditions/v1/{key}")
         Call<List<ConditionsPOJO>> getConditions(@Path("key") String key,
-                                                 @Query(value = "apikey") String apikey);
+                                                 @Query(value = "apikey") String apikey,
+                                                 @Query(value = "language") String language);
 }
